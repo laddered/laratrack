@@ -1,0 +1,66 @@
+services:
+  postgres:
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    container_name: laratrack_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: laratrack
+      POSTGRES_USER: laratrack
+      POSTGRES_PASSWORD: larapass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - laratrack
+
+  php:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: laratrack_php
+    restart: unless-stopped
+    volumes:
+      - ./app:/var/www/laratrack
+    networks:
+      - laratrack
+    working_dir: /var/www/laratrack
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: laratrack_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/laratrack:ro
+    depends_on:
+      - php
+    networks:
+      - laratrack
+
+  queue:
+    build:
+      context: ./docker/queue
+      dockerfile: Dockerfile
+    container_name: laratrack_queue
+    restart: unless-stopped
+    volumes:
+      - ./app:/var/www/laratrack
+    depends_on:
+      - php
+    networks:
+      - laratrack
+    working_dir: /var/www/laratrack
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  laratrack:
+    driver: bridge 
