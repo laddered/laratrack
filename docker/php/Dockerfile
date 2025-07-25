@@ -12,5 +12,8 @@ RUN apk add --no-cache postgresql-dev
 # Установка расширений для работы с PostgreSQL
 RUN docker-php-ext-install pdo pdo_pgsql pgsql
 
+# Установка Node.js и npm
+RUN apk add --no-cache nodejs npm
+
 # Оставляем контейнер в интерактивном режиме, чтобы он не завершался
 CMD ["php-fpm"] 
